@@ -33,7 +33,7 @@ cd "$PROJECT_ROOT" || {
 APP_NAME="NVIDIAFKU"
 APP_AUTHOR="ai_sahil_"
 ENTRY_POINT="cli.py"
-GLOBAL_CMD_NAME="nvidiafku"
+GLOBAL_CMD_NAME="nvdfk"
 REQ_FILE="$PROJECT_ROOT/requirements.txt"
 VENV_DIR="$PROJECT_ROOT/.venv"
 DEPS_STAMP_FILE="$VENV_DIR/.nvidiafku_deps_installed"
