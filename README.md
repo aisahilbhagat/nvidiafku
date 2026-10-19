@@ -14,7 +14,7 @@ NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use.
 Open **Termux** and paste this single command:
 
 ```bash
-pkg update -y && pkg install -y git && git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmod +x start.sh && ./start.sh
+pkg update -y && pkg install -y python git && git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmod +x start.sh && ./start.sh
 
 ```
 
