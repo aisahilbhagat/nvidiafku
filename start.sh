@@ -33,13 +33,13 @@ cd "$PROJECT_ROOT" || {
 APP_NAME="NVIDIAFKU"
 APP_AUTHOR="ai_sahil_"
 ENTRY_POINT="cli.py"
-GLOBAL_CMD_NAME="nvdfk"
+GLOBAL_CMD_NAME="nvidiafku"
 REQ_FILE="$PROJECT_ROOT/requirements.txt"
 VENV_DIR="$PROJECT_ROOT/.venv"
 DEPS_STAMP_FILE="$VENV_DIR/.nvidiafku_deps_installed"
 
 # -----------------------------------------------------------------------------
-# Neon Cyberpunk ANSI Palette (Matches cli.py)
+# Neon Cyberpunk ANSI Palette (Matches cli.py)[cite: 1]
 # -----------------------------------------------------------------------------
 if [ -t 1 ]; then
     RESET="\033[0m"
@@ -79,15 +79,13 @@ log_err()  { printf "  ${BOLD}${NEON_RED}[ ✖ ]${RESET}  %s\n" "$1" >&2; }
 
 # -----------------------------------------------------------------------------
 # Cyberpunk Neon Animated Task Runner
-# Runs any background command with a live Braille spinner + Neon Progress Bar
 # -----------------------------------------------------------------------------
 run_with_neon_animation() {
     local label="$1"
     shift
     local log_file
-    log_file="$(mktemp 2>/dev/null || echo "/tmp/nvidiafku_setup_$$.log")"
+    log_file="$(mktemp 2>/dev/null \vert{}\vert{} echo "/tmp/nvidiafku_setup_$$.log")"
 
-    # If not an interactive terminal, run directly
     if [ ! -t 1 ]; then
         log_info "$label..."
         if "$@" >"$log_file" 2>&1; then
@@ -121,7 +119,7 @@ run_with_neon_animation() {
     while kill -0 "$cmd_pid" 2>/dev/null; do
         local f="${frames[$((i % 10))]}"
         local b="${bar_states[$((i % 10))]}"
-        printf "\r  ${BOLD}${NEON_GREEN}%s${RESET} ${DIM}[${RESET}%b${DIM}]${RESET} ${WHITE}%s${RESET}   " "$f" "$b" "$label"
+        printf "\r  ${BOLD}${NEON_GREEN}%s${RESET}${DIM}[${RESET}\%b${DIM}]${RESET}${WHITE}%s${RESET}   " "$f" "$b" "$label"
         sleep 0.08
         i=$((i + 1))
     done
@@ -130,12 +128,12 @@ run_with_neon_animation() {
     local exit_code=$?
 
     if [ "$exit_code" -eq 0 ]; then
-        printf "\r\033[K  ${BOLD}${NEON_GREEN}[ ✔ ]${RESET} ${DIM}[${NEON_GREEN}██████████${RESET}${DIM}]${RESET} ${WHITE}%s${RESET}\n" "$label"
+        printf "\r\033[K  ${BOLD}${NEON_GREEN}[ ✔ ]${RESET} ${DIM}[${NEON_GREEN}██████████${RESET}${DIM}]${RESET}${WHITE}%s${RESET}\n" "$label"
         printf "%b" "$SHOW_CURSOR"
         rm -f "$log_file"
         return 0
     else
-        printf "\r\033[K  ${BOLD}${NEON_RED}[ ✖ ]${RESET} ${DIM}[${NEON_RED}██████████${RESET}${DIM}]${RESET} ${NEON_RED}%s (FAILED)${RESET}\n" "$label"
+        printf "\r\033[K  ${BOLD}${NEON_RED}[ ✖ ]${RESET} ${DIM}[${NEON_RED}██████████${RESET}${DIM}]${RESET}${NEON_RED}%s (FAILED)${RESET}\n" "$label"
         printf "%b" "$SHOW_CURSOR"
         printf "\n  ${BOLD}${NEON_RED}── Diagnostic Output ──────────────────────────────────────────${RESET}\n" >&2
         tail -n 25 "$log_file" >&2 2>/dev/null || true
@@ -151,7 +149,7 @@ run_with_neon_animation() {
 print_banner() {
     printf "\n"
     printf "${NEON_GREEN}╔══════════════════════════════════════════════════════════════════════════╗${RESET}\n"
-    printf "${NEON_GREEN}║${RESET}  ${BOLD}${NEON_GREEN}⚡ NVIDIA${NEON_RED}FKU${RESET} ${BOLD}${NEON_RED}by ${NEON_GREEN}${APP_AUTHOR}${RESET} ${DIM}${GRAY}— Zero-Touch Auto-Setup & Launcher${RESET}          ${NEON_RED}║${RESET}\n"
+    printf "${NEON_GREEN}║${RESET}  ${BOLD}${NEON_GREEN}⚡ NVIDIA${NEON_RED}FKU${RESET} ${BOLD}${NEON_RED}by ${NEON_GREEN}${APP_AUTHOR}${RESET}${DIM}${GRAY}— Zero-Touch Auto-Setup & Launcher${RESET}          ${NEON_RED}║${RESET}\n"
     printf "${NEON_GREEN}║${RESET}  ${CYBER_CYAN}Dual-Stack HTTP (5000) + HTTPS/LAN (8443) NVIDIA NIM Engine${RESET}             ${NEON_RED}║${RESET}\n"
     printf "${NEON_RED}╚══════════════════════════════════════════════════════════════════════════╝${RESET}\n"
 }
@@ -217,7 +215,7 @@ log_info "Project root     : ${PROJECT_ROOT}"
 # 3. Optional Safe Git Auto-Update
 # -----------------------------------------------------------------------------
 perform_git_update() {
-    if [ "$SKIP_UPDATE" = "1" ] || [ "$SKIP_UPDATE" = "true" ]; then
+    if [ "$SKIP_UPDATE" = "1" ] \vert{}\vert{} [ "$SKIP_UPDATE" = "true" ]; then
         log_info "Git auto-update skipped."
         return 0
     fi
@@ -238,7 +236,7 @@ perform_git_update() {
     remote_sha="$(git rev-parse "@{u}" 2>/dev/null || true)"
     base_sha="$(git merge-base @ "@{u}" 2>/dev/null || true)"
 
-    if [ -z "$local_sha" ] || [ -z "$remote_sha" ] || [ "$local_sha" = "$remote_sha" ]; then
+    if [ -z "$local_sha" ] \vert{}\vert{} [ -z "$remote_sha" ] || [ "$local_sha" = "$remote_sha" ]; then
         log_ok "Repository is up to date."
         return 0
     fi
@@ -249,7 +247,7 @@ perform_git_update() {
             return 0
         fi
         if run_with_neon_animation "Applying fast-forward Git update" git merge --ff-only "@{u}"; then
-            log_ok "Updated ${APP_NAME} to commit $(git rev-parse --short HEAD)."
+            log_ok "Updated ${APP_NAME} to commit$(git rev-parse --short HEAD)."
             FORCE_DEPS=1
         else
             log_warn "Could not fast-forward cleanly. Keeping current version."
@@ -266,7 +264,6 @@ PYTHON_BIN=""
 
 find_python3() {
     PYTHON_BIN=""
-    # Ensure common install locations are in PATH
     for extra_p in "$HOME/.local/bin" "/opt/homebrew/bin" "/usr/local/bin" "/usr/bin"; do
         if [ -d "$extra_p" ] && [[ ":$PATH:" != *":$extra_p:"* ]]; then
             export PATH="$extra_p:$PATH"
@@ -287,14 +284,12 @@ find_python3() {
 auto_install_python() {
     log_warn "Python 3.8+ was not found on this system. Starting automatic installation..."
 
-    # Case 1: Android Termux
     if [ "$IS_TERMUX" -eq 1 ]; then
         run_with_neon_animation "Updating Termux package catalogs" pkg update -y -o Dpkg::Options::="--force-confold" || true
-        run_with_neon_animation "Auto-installing Python 3 & SSL libraries in Termux" pkg install -y python python-cryptography openssl-tool
+        run_with_neon_animation "Auto-installing Python 3 & SSL libraries in Termux" pkg install -y python python-cryptography openssl-tool libffi clang rust
         return $?
     fi
 
-    # Determine sudo wrapper for Linux
     local SUDO_CMD=""
     if [ "$(id -u 2>/dev/null || echo 1)" -ne 0 ]; then
         if command -v sudo >/dev/null 2>&1; then
@@ -303,7 +298,6 @@ auto_install_python() {
         fi
     fi
 
-    # Case 2: macOS
     if [ "$OS_TYPE" = "Darwin" ]; then
         if command -v brew >/dev/null 2>&1; then
             run_with_neon_animation "Auto-installing Python 3 via Homebrew" brew install python
@@ -320,10 +314,8 @@ auto_install_python() {
         fi
     fi
 
-    # Case 3: Linux (apt, dnf, yum, pacman, zypper, apk)
     if command -v apt-get >/dev/null 2>&1; then
-        $SUDO_CMD apt-get update -y
-        $SUDO_CMD env DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-venv python3-pip openssl
+        $SUDO_CMD apt-get update -y$SUDO_CMD env DEBIAN_FRONTEND=noninteractive apt-get install -y python3 python3-venv python3-pip openssl
         return $?
     elif command -v dnf >/dev/null 2>&1; then
         $SUDO_CMD dnf install -y python3 python3-pip openssl
@@ -348,29 +340,20 @@ auto_install_python() {
 if ! find_python3; then
     if ! auto_install_python || ! find_python3; then
         log_err "Automatic Python 3 installation could not complete."
-        printf "\n  ${BOLD}${WHITE}Please install Python 3.8+ manually and re-run ./start.sh:${RESET}\n"
-        printf "    • Termux        : ${NEON_GREEN}pkg install python python-cryptography openssl-tool${RESET}\n"
-        printf "    • Ubuntu/Debian : ${NEON_GREEN}sudo apt update && sudo apt install -y python3 python3-venv python3-pip${RESET}\n"
-        printf "    • macOS         : ${NEON_GREEN}brew install python${RESET} (or https://www.python.org/downloads/)\n\n"
         exit 1
     fi
 fi
 
-# Ensure Termux native cryptography & openssl-tool are present so Termux never hangs compiling Rust
+# Ensure Termux prebuilt system cryptography is fully ready before virtual environment creation
 if [ "$IS_TERMUX" -eq 1 ]; then
-    if ! command -v openssl >/dev/null 2>&1; then
-        run_with_neon_animation "Installing Termux openssl-tool" pkg install -y openssl-tool || true
-    fi
-    if ! "$PYTHON_BIN" -c "import cryptography" >/dev/null 2>&1; then
-        run_with_neon_animation "Installing Termux native python-cryptography" pkg install -y python-cryptography || true
-    fi
+    run_with_neon_animation "Ensuring Termux prebuilt python-cryptography & toolchain" pkg install -y python-cryptography openssl-tool libffi clang rust || true
 fi
 
 PY_VERSION="$("$PYTHON_BIN" -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')"
 log_ok "Python runtime ready: ${PYTHON_BIN} (v${PY_VERSION})"
 
 # -----------------------------------------------------------------------------
-# 6. Virtual Environment Setup (.venv)
+# 6. Virtual Environment Setup (.venv with system-site-packages for Termux)
 # -----------------------------------------------------------------------------
 ACTIVE_PYTHON=""
 
@@ -388,12 +371,11 @@ if [ "$IS_TERMUX" -eq 1 ]; then
 else
     if [ ! -x "$VENV_DIR/bin/python" ]; then
         if ! run_with_neon_animation "Creating isolated virtual environment (.venv)" "$PYTHON_BIN" -m venv "$VENV_DIR"; then
-            # On Ubuntu/Debian, python3-venv package might be missing even when python3 is installed
             if command -v apt-get >/dev/null 2>&1; then
                 log_warn "python3-venv package missing. Auto-installing python3-venv..."
                 SUDO_VENV=""
                 [ "$(id -u 2>/dev/null || echo 1)" -ne 0 ] && command -v sudo >/dev/null 2>&1 && SUDO_VENV="sudo"
-                $SUDO_VENV apt-get update -y && $SUDO_VENV apt-get install -y python3-venv python3-pip
+                $SUDO_VENV apt-get update -y &&$SUDO_VENV apt-get install -y python3-venv python3-pip
             fi
             rm -rf "$VENV_DIR" 2>/dev/null || true
             if ! run_with_neon_animation "Retrying virtual environment creation (.venv)" "$PYTHON_BIN" -m venv "$VENV_DIR"; then
@@ -427,6 +409,11 @@ fi
 
 if [ "$NEEDS_INSTALL" -eq 1 ]; then
     PIP_ARGS=("--disable-pip-version-check" "--no-input")
+    if [ "$IS_TERMUX" -eq 1 ]; then
+        # On Termux, tell pip to prioritize binary wheels and fallback gracefully if building
+        PIP_ARGS+=("--prefer-binary")
+    fi
+
     if [ -f "$REQ_FILE" ]; then
         INSTALL_CMD=("$ACTIVE_PYTHON" -m pip install "${PIP_ARGS[@]}" -r "$REQ_FILE")
     else
@@ -435,13 +422,6 @@ if [ "$NEEDS_INSTALL" -eq 1 ]; then
 
     if ! run_with_neon_animation "Installing NVIDIAFKU dependencies (Flask, Cryptography, Rich, Requests)" "${INSTALL_CMD[@]}"; then
         log_err "Failed to install required Python dependencies!"
-        printf "\n  ${BOLD}${AMBER_GOLD}Troubleshooting Guidance:${RESET}\n"
-        printf "    1. Check your internet / Wi-Fi connection.\n"
-        if [ "$IS_TERMUX" -eq 1 ]; then
-            printf "    2. Run: ${NEON_GREEN}pkg install python-cryptography openssl-tool${RESET}\n"
-        else
-            printf "    2. Run: ${NEON_GREEN}\"$ACTIVE_PYTHON\" -m pip install --upgrade pip setuptools wheel${RESET}\n"
-        fi
         exit 1
     fi
 
@@ -478,7 +458,7 @@ exec \"$PROJECT_ROOT/start.sh\" \"\$@\"
     if [ "$current_content" != "$desired_content" ]; then
         if printf "%s\n" "$desired_content" > "$wrapper_path" 2>/dev/null; then
             chmod +x "$wrapper_path" 2>/dev/null || true
-            log_ok "Registered global command '${GLOBAL_CMD_NAME}' -> ${wrapper_path}"
+            log_ok "Registered global command '${GLOBAL_CMD_NAME}' ->${wrapper_path}"
         fi
     fi
 
@@ -501,20 +481,20 @@ exec \"$PROJECT_ROOT/start.sh\" \"\$@\"
 register_global_command
 
 # -----------------------------------------------------------------------------
-# 10 & 11. Launch Application (`cli.py`)
+# 10 & 11. Launch Application (`cli.py`)[cite: 1]
 # -----------------------------------------------------------------------------
 if [ ! -f "$PROJECT_ROOT/$ENTRY_POINT" ]; then
     log_err "Entry point not found: $PROJECT_ROOT/$ENTRY_POINT"
     exit 1
 fi
 
-log_ok "Environment ready! Launching ${APP_NAME} (${ENTRY_POINT})..."
+log_ok "Environment ready! Launching ${APP_NAME} (${ENTRY_POINT})..."[cite: 1]
 sleep 0.35
 
 if [ "${#APP_ARGS[@]}" -gt 0 ]; then
-    "$ACTIVE_PYTHON" "$PROJECT_ROOT/$ENTRY_POINT" "${APP_ARGS[@]}"
+    "$ACTIVE_PYTHON" "$PROJECT_ROOT/$ENTRY_POINT" "${APP_ARGS[@]}"[cite: 1]
 else
-    "$ACTIVE_PYTHON" "$PROJECT_ROOT/$ENTRY_POINT"
+    "$ACTIVE_PYTHON" "$PROJECT_ROOT/$ENTRY_POINT"[cite: 1]
 fi
 EXIT_CODE=$?
 
