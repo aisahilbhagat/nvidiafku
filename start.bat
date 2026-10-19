@@ -25,7 +25,7 @@ chcp 65001 >nul 2>&1
 set "APP_NAME=NVIDIAFKU"
 set "APP_AUTHOR=ai_sahil_"
 set "ENTRY_POINT=cli.py"
-set "GLOBAL_CMD_NAME=nvidiafku"
+set "GLOBAL_CMD_NAME=nvdfk"
 set "VENV_DIR=%PROJECT_ROOT%\.venv"
 set "VENV_PYTHON=%VENV_DIR%\Scripts\python.exe"
 set "REQ_FILE=%PROJECT_ROOT%\requirements.txt"
