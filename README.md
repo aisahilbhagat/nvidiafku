@@ -36,7 +36,7 @@ git clone https://github.com/aisahilbhagat/nvidiafku.git; cd nvidiafku; .\start.
 
 ```
 
-*(Or simply open the `nvidiafku` folder in File Explorer and double-click **`start.bat`**!)*
+*(Or simply open the `nvdfk` folder in File Explorer and double-click **`start.bat`**!)*
 
 ---
 
@@ -69,12 +69,9 @@ git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmo
 Once you have run the setup command above at least once, a global shortcut command is automatically registered on your system. Next time you open a terminal from **any folder**, simply type:
 
 ```bash
-nvidiafku
+nvdfk
 
 ```
-
-*(Note: If you changed `GLOBAL_CMD_NAME` inside `start.sh` and `start.bat`, type your custom command name here instead!)*
-
 ---
 
 ## 🛠️ Optional Launcher Flags
