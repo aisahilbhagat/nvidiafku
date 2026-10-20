@@ -45,7 +45,7 @@ pkg update -y && pkg install -y python git openssl-tool && git clone https://git
 
 ```
 
-# Below here please enter **y**. Press Enter ⏎ to confirm on your phone virtual keyboard.
+## Below here please enter **y**. Press Enter ⏎ to confirm on your phone virtual keyboard.
 <img src="img/help.jpg" alt="Dashboard" width="600"> 
 
 ---
@@ -55,7 +55,7 @@ pkg update -y && pkg install -y python git openssl-tool && git clone https://git
 2.  Press Enter ⏎ to use Enter key for the CLI.
 
 
-# WELL I DESIGNED IT KEEPING IS MIND FOR PROFESSIONAL WORK AND RP TOO SO HERE ARE THE CONFIG FOR ROPEPLAY 
+## WELL I DESIGNED IT KEEPING IS MIND FOR PROFESSIONAL WORK AND RP TOO SO HERE ARE THE CONFIG FOR ROPEPLAY 
 
 | Setting | Value |
 |---|---|
