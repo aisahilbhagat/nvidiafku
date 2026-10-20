@@ -598,6 +598,89 @@ def get_network_status(refresh=True):
         }
 
 
+
+def print_server_banner():
+    """
+    Prints the Dual-Stack HTTP/HTTPS & LAN boot banner summarizing:
+      - Active platform (Windows / Linux / macOS / Termux)
+      - HTTP Port 5000 (zero-cert-warning secure context)
+      - HTTPS Port 8443 (polyglot HTTP/HTTPS — works even if SSL is unavailable)
+      - LAN Wi-Fi URL for mobile / other devices
+      - SSL certificate trust status & path
+      - NVIDIA NIM API reachability
+      - Any last network error
+    Uses ANSI colors from `TermColors` to stay consistent with the rest of the engine logs.
+    """
+    c = TermColors
+    now_str = datetime.now().strftime("%H:%M:%S")
+
+    with server_state.lock:
+        platform_name = server_state.platform_name or "Unknown"
+        http_port = server_state.http_port
+        https_port = server_state.https_port
+        lan_ip = server_state.lan_ip
+        https_available = server_state.https_available
+        cert_trusted = server_state.cert_trusted
+        cert_trust_detail = server_state.cert_trust_detail
+        internet_online = server_state.internet_online
+        nvidia_reachable = server_state.nvidia_reachable
+        last_error = server_state.last_net_error
+        cert_path = server_state.cert_path
+
+    scheme_8443 = "https" if https_available else "http"
+    has_lan = bool(lan_ip) and lan_ip != "127.0.0.1"
+
+    print(f"\n{c.DIM}[{now_str}]{c.RESET} {c.BOLD}{c.GREEN}==============================================================={c.RESET}")
+    print(f"{c.BOLD}{c.GREEN}  NVIDIAFKU Dual-Stack HTTP/HTTPS & LAN Engine — Server Banner{c.RESET}")
+    print(f"{c.BOLD}{c.GREEN}==============================================================={c.RESET}")
+
+    # Platform
+    print(f"  {c.BOLD}{c.CYAN}Platform          :{c.RESET} {c.BOLD}{platform_name}{c.RESET}")
+
+    # HTTP (Port 5000) — zero-cert-warning endpoint
+    print(f"  {c.BOLD}{c.CYAN}HTTP  (Port {http_port})  :{c.RESET} {c.GREEN}http://localhost:{http_port}/v1{c.RESET}")
+    if has_lan:
+        print(f"  {c.BOLD}{c.CYAN}                    :{c.RESET} {c.GREEN}http://{lan_ip}:{http_port}/v1{c.RESET}")
+
+    # HTTPS / Polyglot (Port 8443)
+    if https_available:
+        print(f"  {c.BOLD}{c.CYAN}HTTPS (Port {https_port}) :{c.RESET} {c.GREEN}{scheme_8443}://localhost:{https_port}/v1{c.RESET}")
+        if has_lan:
+            print(f"  {c.BOLD}{c.CYAN}                    :{c.RESET} {c.GREEN}{scheme_8443}://{lan_ip}:{https_port}/v1{c.RESET}")
+    else:
+        print(f"  {c.BOLD}{c.YELLOW}HTTPS (Port {https_port}) :{c.RESET} {c.YELLOW}Unavailable — running plain HTTP fallback on port {https_port}{c.RESET}")
+
+    # SSL certificate trust status
+    if https_available:
+        if cert_trusted:
+            print(f"  {c.BOLD}{c.CYAN}SSL Cert Trust    :{c.RESET} {c.GREEN}Trusted ({cert_trust_detail}){c.RESET}")
+        else:
+            print(f"  {c.BOLD}{c.CYAN}SSL Cert Trust    :{c.RESET} {c.YELLOW}Self-signed / not auto-trusted ({cert_trust_detail}){c.RESET}")
+        if cert_path:
+            print(f"  {c.BOLD}{c.CYAN}Cert Path         :{c.RESET} {c.DIM}{cert_path}{c.RESET}")
+        cert_host = lan_ip if has_lan else "localhost"
+        print(f"  {c.BOLD}{c.CYAN}Mobile LAN Cert   :{c.RESET} http://{cert_host}:{http_port}/cert.crt")
+    else:
+        print(f"  {c.BOLD}{c.CYAN}SSL Cert Trust    :{c.RESET} {c.YELLOW}No SSL certificate generated (HTTP-only mode){c.RESET}")
+
+    # NVIDIA upstream reachability
+    if internet_online and nvidia_reachable:
+        nvidia_status = f"{c.GREEN}ONLINE — NVIDIA NIM API reachable{c.RESET}"
+    elif internet_online and not nvidia_reachable:
+        nvidia_status = f"{c.YELLOW}Online but NVIDIA NIM returned non-OK status{c.RESET}"
+    else:
+        nvidia_status = f"{c.RED}OFFLINE — No internet / Wi-Fi disconnected{c.RESET}"
+    print(f"  {c.BOLD}{c.CYAN}NVIDIA NIM Status :{c.RESET} {nvidia_status}")
+
+    # Last network error (if any)
+    if last_error:
+        print(f"  {c.BOLD}{c.RED}Last Net Error    :{c.RESET} {c.YELLOW}{last_error}{c.RESET}")
+
+    print(f"{c.BOLD}{c.GREEN}==============================================================={c.RESET}")
+    print(f"{c.DIM}  Tip: JanitorAI / SillyTavern / VS Code — use http://localhost:{http_port}/v1{c.RESET}")
+    print(f"{c.BOLD}{c.GREEN}==============================================================={c.RESET}\n", flush=True)
+
+
 def start_server(
     host="0.0.0.0",
     port=DEFAULT_HTTPS_PORT,
