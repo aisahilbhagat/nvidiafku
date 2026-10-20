@@ -47,7 +47,9 @@ pkg update -y && pkg install -y python git openssl-tool && git clone https://git
 
 # Below here please enter **y**. Press Enter ⏎ to confirm on your phone virtual keyboard.
 <img src="img/help.jpg" alt="Dashboard" width="600"> 
+
 ---
+
 # Other details for termux
 1. arrow don't work so use number to navigate.
 2.  Press Enter ⏎ to use Enter key for the CLI.
