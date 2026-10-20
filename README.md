@@ -47,7 +47,7 @@ pkg update -y && pkg install -y python git openssl-tool && git clone https://git
 | Setting | Value |
 |---|---|
 | **API Architecture** | `OpenAI` |
-| **Reverse Proxy URL** | `http://localhost:5000/v1/chat/completions` |
+| **Reverse Proxy URL** | `http://localhost:5000/v1/chat/completions` or `http://127.0.0.1:5000/v1/chat/completions` |
 | **API Key** | `anything`  |
 | **Model** | `nvidia/nemotron-3.5-super-vl-120b-a12b` (see more from the list) |
 
