@@ -14,13 +14,18 @@ NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use.
 Open **Termux** and paste this single command:
 
 ```bash
-pkg update -y && pkg install -y python git && git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmod +x start.sh && ./start.sh
+pkg update -y && pkg install -y python git openssl-tool && git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmod +x start.sh && ./start.sh
 
 ```
 
 ---
 
-### 🪟 2. Windows (CMD or PowerShell)
+### 🪟 2. Windows (CMD or PowerShell) 
+<span style="color:red;">This command expects git to be installed on your windows PC so ensure its installed</span>
+<span style="color:green;">If you are smart just download it and unzip it and then run the start.bat .</span>
+
+
+
 
 **Option A — Using Command Prompt (`cmd.exe`):**
 
@@ -36,11 +41,14 @@ git clone https://github.com/aisahilbhagat/nvidiafku.git; cd nvidiafku; .\start.
 
 ```
 
-*(Or simply open the `nvdfk` folder in File Explorer and double-click **`start.bat`**!)*
+*(Or simply open the `nvidiafku` folder in File Explorer and double-click **`start.bat`**!)*
 
 ---
 
 ### 🐧 3. Linux (Ubuntu / Debian / Arch / Fedora)
+
+<span style="color:red;"><bold>I haven't test on the Any of these Linux distros. So if any problem occurs do tell me.</bold></span>
+
 
 Open your terminal and run:
 
@@ -52,6 +60,8 @@ git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmo
 ---
 
 ### 🍎 4. macOS (Terminal or Finder)
+
+<span style="color:red;"><bold>I haven't test on the MacOS because I am poor.. So if any problem occurs do tell me.</bold></span>
 
 Open **Terminal** and run:
 
@@ -69,7 +79,7 @@ git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmo
 Once you have run the setup command above at least once, a global shortcut command is automatically registered on your system. Next time you open a terminal from **any folder**, simply type:
 
 ```bash
-nvdfk
+nvidiafku
 
 ```
 ---
