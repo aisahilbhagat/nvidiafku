@@ -1,7 +1,8 @@
 # nvidiafku
 NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use. 
 
-**its beta and unstable so please report any crashes and problem to me. AI was also used in this project.** 
+**its beta and unstable so please report any crashes and problem to me. AI was also used in this project.**
+**HTTPS Mode is highly unstable so i suggest not use it and if you can fix it please do it. Use the local host for now**
 
 ---
 
