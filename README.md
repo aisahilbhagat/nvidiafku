@@ -28,7 +28,7 @@ There are other text models also available but these are stable and ready to use
 6. Click on Generate API keys name it and select the expiration date. <span style="color:red;">Note that the api will expire after that time period. </span>
 7. copy the api key and then update it inside the CLI or your required destination.
 
-
+** First installation will take time so keep you patience. Time depends on Your internet speed.
 
 ### 📱 1. Android (Termux)
 
