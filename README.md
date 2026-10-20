@@ -18,6 +18,16 @@ pkg update -y && pkg install -y python git openssl-tool && git clone https://git
 
 ```
 
+# WELL I DESIGNED IT KEEPING IS MIND FOR PROFESSIONAL WORK AND RP TOO SO HERE ARE THE CONFIG FOR ROPEPLAY 
+
+| Setting | Value |
+|---|---|
+| **API Architecture** | `OpenAI` |
+| **Reverse Proxy URL** | `http://localhost:5000/v1/chat/completions` |
+| **API Key** | `anything` (if you havent fill in the cli fill your nvidia api here other wise anything) |
+| **Model** | `nvidia/nemotron-3.5-super-vl-120b-a12b` (see more from the list) |
+
+
 ---
 
 ### 🪟 2. Windows (CMD or PowerShell) 
