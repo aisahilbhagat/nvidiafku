@@ -45,12 +45,12 @@ pkg update -y && pkg install -y python git openssl-tool && git clone https://git
 |---|---|
 | **API Architecture** | `OpenAI` |
 | **Reverse Proxy URL** | `http://localhost:5000/v1/chat/completions` |
-| **API Key** | `anything` (if you havent fill in the cli fill your nvidia api here other wise anything) |
+| **API Key** | `anything`  |
 | **Model** | `nvidia/nemotron-3.5-super-vl-120b-a12b` (see more from the list) |
 
 About the API key 
-1. Either you can update the api in the cli for persistence and then fill out anything on the janitor website or other tools
-2.  or you can fill the nvidia api directly on the janitor website or other tools
+1. update the api in the cli for persistence and then fill out anything on the janitor website or other tools
+
 
 choose whatever suits you the script will automatically understand it. 
 
