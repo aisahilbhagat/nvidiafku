@@ -1,6 +1,8 @@
 # nvidiafku
 NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use. 
 
+**its beta and unstable so please report any crashes and problem to me. AI was also used in this project.** 
+
 ---
 
 ## ⚡ Quick Start — One-Command Auto-Setup & Launch
