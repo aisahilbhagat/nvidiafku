@@ -10,12 +10,12 @@ NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use.
 ---
 
 # AVAILABLE MODELS
-|Model|Specifications|Context Length|Parameters|Input Modalities|Output Modalities|
-|--|--|--|--|
-|`nvidia/nemotron-3.5-super-vl-120b-a12b`|Nemotron 3.5 Super early-access reasoning model for agentic, coding, tool-calling, and multimodal workloads|262K|124B|Text, Image|Text|
-|`nvidia/nemotron-3.5-lightning-30b-a3b`|Fastest 30B A3B MoE model with leading domain accuracy for specialized agentic tasks|1M|30B|Text|Text|
-|`nvidia/nemotron-3-ultra-550b-a55b`|Open, efficient hybrid Mamba-Transformer MoE with 1M context, excelling in agentic reasoning, coding, planning, tool calling, and more|1M|561B|Text|Text|
-|`openai/gpt-oss-20b`|Smaller Mixture of Experts (MoE) text-only LLM for efficient AI reasoning and math|131K|21B|Text|Text|
+| Model | Specifications | Context Length | Parameters | Input Modalities | Output Modalities |
+|---|---|---|---|
+| `nvidia/nemotron-3.5-super-vl-120b-a12b` | Nemotron 3.5 Super early-access reasoning model for agentic, coding, tool-calling, and multimodal workloads | 262K | 124B | Text, Image | Text |
+| `nvidia/nemotron-3.5-lightning-30b-a3b` | Fastest 30B A3B MoE model with leading domain accuracy for specialized agentic tasks | 1M | 30B | Text | Text |
+| `nvidia/nemotron-3-ultra-550b-a55b` | Open, efficient hybrid Mamba-Transformer MoE with 1M context, excelling in agentic reasoning, coding, planning, tool calling, and more | 1M | 561B | Text | Text |
+| `openai/gpt-oss-20b` | Smaller Mixture of Experts (MoE) text-only LLM for efficient AI reasoning and math | 131K | 21B | Text | Text |
 
 There are other text models also available but these are stable and ready to use for roleplay and coding tools.
 
