@@ -56,6 +56,8 @@ class ServerRuntimeState:
         self.last_net_error = None
         self.https_server = None
         self.http_server = None
+        self.ipv6_http_server = None
+        self.ipv6_https_server = None
         self.server_thread = None
         self.http_thread = None
 
@@ -598,9 +600,42 @@ class PolyglotHTTPAndHTTPSServer:
 _middleware_attached = False
 
 
+def _apply_universal_cors_headers(response):
+    """
+    Applies WhatWG Fetch & Chrome Private Network Access (CORS-RFC1918) compliant headers.
+    Crucially avoids combining `Access-Control-Allow-Origin: *` with
+    `Access-Control-Allow-Credentials: true`, which causes Chrome/Edge/Brave on
+    Android & Windows to abort `fetch('http://localhost:5000/...')` with `Failed to fetch`.
+    """
+    origin = request.headers.get("Origin")
+    if origin:
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers.pop("Access-Control-Allow-Credentials", None)
+
+    response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+
+    req_headers = request.headers.get("Access-Control-Request-Headers")
+    if req_headers:
+        response.headers["Access-Control-Allow-Headers"] = req_headers
+    else:
+        response.headers["Access-Control-Allow-Headers"] = (
+            "Content-Type, Authorization, X-Requested-With, Accept, Origin, "
+            "X-Thinking, X-Enable-Thinking, X-Model-Override, X-RP-Mode, OpenAI-Beta, HTTP-Referer, X-Title"
+        )
+
+    # Required by Chrome / Edge / Brave for HTTPS websites calling http://127.0.0.1 or http://localhost
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
+    response.headers["Access-Control-Max-Age"] = "86400"
+    return response
+
+
 def attach_server_middleware_and_routes():
     """
-    Attaches Private Network Access (CORS-RFC1918) headers for LAN browsers,
+    Attaches Private Network Access (CORS-RFC1918) headers for LAN & localhost browsers,
     pre-request Wi-Fi/internet guard, `/v1/engine/cert.crt` for mobile LAN certificate
     installation, and `/v1/engine/network` onto the imported Flask `app` without
     modifying `nvidia_rp_cleaner.py`.
@@ -609,16 +644,14 @@ def attach_server_middleware_and_routes():
     if _middleware_attached:
         return
 
+    app.url_map.strict_slashes = False
+
     @app.before_request
     def network_guard_and_preflight():
-        # Handle CORS Private Network preflight immediately
+        # Handle CORS + Private Network preflight immediately with exact Origin reflection
         if request.method == "OPTIONS":
             resp = Response(status=204)
-            resp.headers["Access-Control-Allow-Origin"] = "*"
-            resp.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-            resp.headers["Access-Control-Allow-Headers"] = "*"
-            resp.headers["Access-Control-Allow-Private-Network"] = "true"
-            return resp
+            return _apply_universal_cors_headers(resp)
 
         # Pre-flight check on chat completions if Wi-Fi/Internet is completely down
         if request.path.endswith("/chat/completions") and request.method == "POST":
@@ -637,7 +670,7 @@ def attach_server_middleware_and_routes():
                     f"{c.YELLOW}Cannot reach NVIDIA server (integrate.api.nvidia.com).{c.RESET}",
                     flush=True
                 )
-                return jsonify({
+                err_resp = jsonify({
                     "error": {
                         "message": (
                             "No Internet Connection: Your device is offline or not connected to Wi-Fi, "
@@ -647,14 +680,14 @@ def attach_server_middleware_and_routes():
                         "type": "network_offline_error",
                         "code": "nvidia_unreachable"
                     }
-                }), 503
+                })
+                err_resp.status_code = 503
+                return _apply_universal_cors_headers(err_resp)
 
     @app.after_request
     def add_lan_and_private_network_headers(response):
-        # Allow Chrome/Brave/Edge on Windows, Linux, macOS, and Android to talk to localhost & LAN IPs
-        response.headers["Access-Control-Allow-Private-Network"] = "true"
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        return response
+        # Preserve valid Origin reflection instead of overwriting with "*"
+        return _apply_universal_cors_headers(response)
 
     @app.route("/v1/engine/cert.crt", methods=["GET"])
     @app.route("/cert.crt", methods=["GET"])
@@ -688,7 +721,7 @@ def attach_server_middleware_and_routes():
                 "platform": server_state.platform_name,
                 "https_port": server_state.https_port,
                 "http_port": server_state.http_port,
-                "localhost_http_url": f"http://localhost:{server_state.http_port}/v1/chat/completions",
+                "localhost_http_url": f"http://127.0.0.1:{server_state.http_port}/v1/chat/completions",
                 "localhost_url": f"https://localhost:{server_state.https_port}/v1/chat/completions",
                 "lan_http_url": f"http://{server_state.lan_ip}:{server_state.http_port}/v1/chat/completions",
                 "lan_url": f"https://{server_state.lan_ip}:{server_state.https_port}/v1/chat/completions",
@@ -707,21 +740,47 @@ def attach_server_middleware_and_routes():
     _middleware_attached = True
 
 
+def _start_optional_ipv6_loopback_listener(port, ssl_ctx=None):
+    """
+    On Windows 11 and Android, `localhost` often resolves to IPv6 `::1` first.
+    If Werkzeug only listens on IPv4 `0.0.0.0`, `fetch('http://localhost:5000')` fails!
+    This spins up an auxiliary `::1` listener so both `localhost` (IPv6) and `127.0.0.1` (IPv4) work.
+    """
+    if not getattr(socket, "has_ipv6", False):
+        return None
+    try:
+        srv_v6 = make_server("::1", port, app, threaded=True)
+        if ssl_ctx is not None:
+            PolyglotHTTPAndHTTPSServer.wrap_wsgi_server_polyglot(srv_v6, ssl_ctx)
+        t_v6 = threading.Thread(
+            target=srv_v6.serve_forever,
+            name=f"IPv6Loopback_{port}",
+            daemon=True
+        )
+        t_v6.start()
+        return srv_v6
+    except Exception:
+        return None
+
+
 def start_plain_http_engine_listener(http_port):
     """
-    Runs the full Flask `app` on plain `http://0.0.0.0:5000` simultaneously alongside
-    Port 8443!
+    Runs the full Flask `app` on plain `http://0.0.0.0:5000` (and IPv6 `[::1]:5000`)
+    simultaneously alongside Port 8443!
     Why this fixes Windows, Linux, macOS, and Android Termux 100% of the time:
-      - Modern browsers treat `http://localhost:5000` and `http://127.0.0.1:5000` as a
+      - Modern browsers treat `http://127.0.0.1:5000` and `http://localhost:5000` as a
         natively trusted W3C Secure Context.
       - HTTPS sites like JanitorAI, Chub, SillyTavern, and VS Code extensions can call
-        `http://localhost:5000/v1/chat/completions` directly without EVER hitting
-        `NET::ERR_CERT_AUTHORITY_INVALID`!
+        `http://127.0.0.1:5000/v1/chat/completions` or `http://localhost:5000/v1/chat/completions`
+        directly without EVER hitting `NET::ERR_CERT_AUTHORITY_INVALID` or `Failed to fetch`!
     """
     try:
         srv = make_server("0.0.0.0", http_port, app, threaded=True)
         t = threading.Thread(target=srv.serve_forever, name="PlainHTTPEngineThread", daemon=True)
         t.start()
+        v6_srv = _start_optional_ipv6_loopback_listener(http_port, ssl_ctx=None)
+        with server_state.lock:
+            server_state.ipv6_http_server = v6_srv
         return srv, t
     except OSError:
         return None, None
@@ -755,7 +814,7 @@ def get_network_status(refresh=True):
             "http_port": server_state.http_port,
             "lan_ip": server_state.lan_ip,
             "all_lan_ips": list(server_state.all_lan_ips),
-            "localhost_http_endpoint": f"http://localhost:{server_state.http_port}/v1/chat/completions",
+            "localhost_http_endpoint": f"http://127.0.0.1:{server_state.http_port}/v1/chat/completions",
             "localhost_endpoint": f"https://localhost:{server_state.https_port}/v1/chat/completions",
             "lan_http_endpoint": f"http://{server_state.lan_ip}:{server_state.http_port}/v1/chat/completions",
             "lan_endpoint": f"https://{server_state.lan_ip}:{server_state.https_port}/v1/chat/completions",
@@ -785,7 +844,7 @@ def print_server_banner():
     print(f"{c.BOLD}{c.GREEN}🔒 NVIDIA NIM DUAL-STACK HTTP + HTTPS & LAN SERVER (server.py){c.RESET}")
     print(f"{c.CYAN}💻 Platform Detected  : {c.WHITE}{plat}{c.RESET}")
     print(f"{c.CYAN}🛡️  Cert Status        : {c.WHITE}{trust_detail}{c.RESET}")
-    print(f"{c.CYAN}🏠 Localhost (No-Warn): {c.BOLD}{c.GREEN}http://localhost:{http_port}/v1/chat/completions{c.RESET}")
+    print(f"{c.CYAN}🏠 Localhost (No-Warn): {c.BOLD}{c.GREEN}http://127.0.0.1:{http_port}/v1/chat/completions{c.RESET}")
     print(f"{c.CYAN}🔐 Localhost (HTTPS)  : {c.BOLD}{c.GREEN}https://localhost:{https_port}/v1/chat/completions{c.RESET}")
 
     if lan_ip and lan_ip != "127.0.0.1":
@@ -885,9 +944,11 @@ def start_server(
 
     wsgi_srv = make_server(host, port, app, threaded=True)
     PolyglotHTTPAndHTTPSServer.wrap_wsgi_server_polyglot(wsgi_srv, ssl_ctx)
+    v6_https_srv = _start_optional_ipv6_loopback_listener(port, ssl_ctx=ssl_ctx)
 
     with server_state.lock:
         server_state.https_server = wsgi_srv
+        server_state.ipv6_https_server = v6_https_srv
         server_state.is_running = True
 
     if background:
@@ -907,19 +968,14 @@ def start_server(
 def stop_server():
     """Gracefully shuts down both the Port 8443 HTTPS server and Port 5000 HTTP server."""
     with server_state.lock:
-        if server_state.https_server:
-            try:
-                server_state.https_server.shutdown()
-            except Exception:
-                pass
-            server_state.https_server = None
-
-        if server_state.http_server:
-            try:
-                server_state.http_server.shutdown()
-            except Exception:
-                pass
-            server_state.http_server = None
+        for srv_attr in ("https_server", "http_server", "ipv6_https_server", "ipv6_http_server"):
+            srv_obj = getattr(server_state, srv_attr, None)
+            if srv_obj:
+                try:
+                    srv_obj.shutdown()
+                except Exception:
+                    pass
+                setattr(server_state, srv_attr, None)
 
         server_state.is_running = False
     return {"status": "stopped"}

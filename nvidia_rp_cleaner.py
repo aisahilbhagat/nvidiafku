@@ -283,13 +283,29 @@ def set_http_session(custom_session):
 # =====================================================================
 @app.after_request
 def add_cors_headers(response):
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.headers["Access-Control-Allow-Credentials"] = "true"
+    origin = request.headers.get("Origin")
+    if origin:
+        # Echo exact Origin so browsers allow credentials + Private Network Access (localhost / 127.0.0.1)
+        response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Credentials"] = "true"
+        response.headers["Vary"] = "Origin"
+    else:
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers.pop("Access-Control-Allow-Credentials", None)
+
     response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-    response.headers["Access-Control-Allow-Headers"] = (
-        "Content-Type, Authorization, X-Requested-With, Accept, Origin, "
-        "X-Thinking, X-Enable-Thinking, X-Model-Override, X-RP-Mode, OpenAI-Beta, HTTP-Referer, X-Title"
-    )
+
+    req_headers = request.headers.get("Access-Control-Request-Headers")
+    if req_headers:
+        response.headers["Access-Control-Allow-Headers"] = req_headers
+    else:
+        response.headers["Access-Control-Allow-Headers"] = (
+            "Content-Type, Authorization, X-Requested-With, Accept, Origin, "
+            "X-Thinking, X-Enable-Thinking, X-Model-Override, X-RP-Mode, OpenAI-Beta, HTTP-Referer, X-Title"
+        )
+
+    # Required by Chrome / Edge / Brave for HTTPS websites calling http://127.0.0.1 or localhost
+    response.headers["Access-Control-Allow-Private-Network"] = "true"
     return response
 
 
@@ -300,7 +316,6 @@ def add_cors_headers(response):
 @app.route("/v1/engine/<path:subpath>", methods=["OPTIONS"])
 def handle_options(subpath=None):
     return Response(status=204)
-
 
 # =====================================================================
 # API KEY RESOLUTION & DYNAMIC THINKING / MODEL RESOLVERS
