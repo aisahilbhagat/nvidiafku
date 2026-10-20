@@ -1,6 +1,4 @@
-flask>=3.0.0
-werkzeug>=3.0.0
-requests>=2.31.0
-urllib3>=2.0.0
-cryptography>=42.0.0
-rich>=13.7.0
+flask
+requests
+werkzeug
+urllib3
