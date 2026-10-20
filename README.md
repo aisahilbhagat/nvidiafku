@@ -19,7 +19,7 @@ NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use.
 | `openai/gpt-oss-20b` | Smaller Mixture of Experts (MoE) text-only LLM for efficient AI reasoning and math | 131K | 21B | Text | Text |
 There are other text models also available but these are stable and ready to use for roleplay and coding tools.
 
-#Steps to get Nvidia API
+# Steps to get Nvidia API
 1. go to `https://build.nvidia.com/models`
 2. on the top right corner click on **Login**
 3. Enter your email and login
