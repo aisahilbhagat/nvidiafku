@@ -3,6 +3,9 @@ NVIDIAFKU || Nvidia API endpoint cleanup to use for roleplay and normal use.
 
 **its beta and unstable so please report any crashes and problem to me. AI was also used in this project.**
 **HTTPS Mode is highly unstable so i suggest not use it and if you can fix it please do it. Use the local host for now**
+**Read the full ReadME nicely before complaining and also if its still broken report me ASAP**
+**Some android OS like Lenovo ZUI can face some issue idk why but on my other android it is working fine.**
+**MacOS and Linux not tested**
 
 ---
 
@@ -41,6 +44,13 @@ Open **Termux** and paste this single command:
 pkg update -y && pkg install -y python git openssl-tool && git clone https://github.com/aisahilbhagat/nvidiafku.git && cd nvidiafku && chmod +x start.sh && ./start.sh
 
 ```
+Below here please enter **y**.
+Press Enter ⏎ to confirm on your phone virtual keyboard.
+<img src="img/help.jpg" alt="Dashboard" width="600"> 
+# Other details for termux
+1. arrow don't work so use number to navigate.
+2.  Press Enter ⏎ to use Enter key for the CLI.
+
 
 # WELL I DESIGNED IT KEEPING IS MIND FOR PROFESSIONAL WORK AND RP TOO SO HERE ARE THE CONFIG FOR ROPEPLAY 
 
