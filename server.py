@@ -979,3 +979,4 @@ def stop_server():
 
         server_state.is_running = False
     return {"status": "stopped"}
+

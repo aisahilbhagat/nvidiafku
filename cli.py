@@ -59,12 +59,14 @@ import model_switch as model_switch_module
 # The CLI will automatically style and wrap this inside a sleek neon box
 # right underneath the API Key input field.
 API_KEY_INSTRUCTIONS = [
-    "1. Visit https://build.nvidia.com and sign in or create a free account.",
-    "2. Click on any model (e.g., 'nemotron-3.5-super-vl-120b-a12b') -> 'Get API Key'.",
-    "3. Click 'Generate Key' and copy your key starting with 'nvapi-...'.",
-    "4. Paste the key above and press [Enter] — we will verify & save it to .env!",
+    "1. go to `https://build.nvidia.com/models`" ,
+    "2. on the top right corner click on Login" ,
+    "3. Enter your email and login" ,
+    "4. click on the profile on the top right corner if you are logged in then the login should be replaced by it." ,
+    "5. You will Get three options click on API Keys." ,
+    "6. Click on Generate API keys name it and select the expiration date. Note that the api will expire after that time period." ,
+    "7. copy the api key and then update it inside the CLI or your required destination." ,
 ]
-
 PREFERENCES_FILE = os.path.abspath("cli_preferences.json")
 ENV_FILE = os.path.abspath(".env")
 
